@@ -1,0 +1,7 @@
+/home/phong/pythonprj/facedet/messi.jpeg
+/home/phong/pythonprj/facedet/footballer/Screen-Shot-2020-09-04-at-18.01.56-3fcf.png
+/home/phong/pythonprj/facedet/footballer/download (3).jpeg
+/home/phong/pythonprj/facedet/footballer/download (1).jpeg
+/home/phong/pythonprj/facedet/footballer/messi-1842.jpeg
+/home/phong/pythonprj/facedet/footballer/download (4).jpeg
+/home/phong/pythonprj/facedet/footballer/download.jpeg

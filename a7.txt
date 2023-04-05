@@ -1,0 +1,4 @@
+/home/phong/pythonprj/facedet/anh7.jpeg
+/home/phong/pythonprj/facedet/footballer/download (5).jpeg
+/home/phong/pythonprj/facedet/footballer/download1.jpeg
+/home/phong/pythonprj/facedet/footballer/0_GettyImages-1249152860.jpg

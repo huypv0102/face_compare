@@ -1,0 +1,10 @@
+/home/phong/pythonprj/facedet/hc.png
+/home/phong/pythonprj/facedet/footballer/Screen-Shot-2020-09-04-at-18.01.56-3fcf.png
+/home/phong/pythonprj/facedet/footballer/hc4.png
+/home/phong/pythonprj/facedet/footballer/hc6.png
+/home/phong/pythonprj/facedet/footballer/stud24.png
+/home/phong/pythonprj/facedet/footballer/messi-1842.jpeg
+/home/phong/pythonprj/facedet/footballer/hc1.png
+/home/phong/pythonprj/facedet/footballer/stud39.png
+/home/phong/pythonprj/facedet/footballer/hc5.png
+/home/phong/pythonprj/facedet/footballer/hc2.png

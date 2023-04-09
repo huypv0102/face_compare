@@ -1,0 +1,24 @@
+{
+    "data": [
+        "/home/phong/pythonprj/facedet/images/20160523104753_57407975-c31688d3ff.jpg",
+        "/home/phong/pythonprj/facedet/images/20160523104718_57407975-696a805324.jpg",
+        "/home/phong/pythonprj/facedet/images/20160523104610_57407925-7dfb34f090.jpg",
+        "/home/phong/pythonprj/facedet/images/chup-anh-ky-yeu-mam-non-1.jpg",
+        "/home/phong/pythonprj/facedet/images/20160523104653_57407975-7f6323a54c.jpg",
+        "/home/phong/pythonprj/facedet/images/20160523104743_57407975-bcf28a8d83.jpg",
+        "/home/phong/pythonprj/facedet/images/chup-anh-ky-yeu-mam-non-7-scaled.jpg",
+        "/home/phong/pythonprj/facedet/images/20160523104729_57407975-3589726088.jpg",
+        "/home/phong/pythonprj/facedet/images/20160523104623_57407974-873839e8ec.jpg"
+    ],
+    "distance": [
+        0.27734944304464376,
+        0.44801323786857394,
+        0.2764029245790661,
+        0.45526255078676175,
+        0.0,
+        0.3610809999195091,
+        0.44838951748469486,
+        0.2285193420770441,
+        0.29056498477671316
+    ]
+}

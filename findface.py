@@ -37,7 +37,7 @@ def detectionProcessing(imgFolder, encodedTarget, outputData, distance):
             face_distances = face_recognition.face_distance(
                 encodedImages, encodedTarget)
             outputData["data"].append(image)
-            outputData["distance"].append(face_distances[result.index(True)])
+            outputData["distance"].append(min(face_distances))
 
 
 with open(outp_name, "w") as outputFile:

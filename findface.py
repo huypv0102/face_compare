@@ -4,12 +4,12 @@ import face_recognition
 import os
 import sys
 
-target = input('Enter avatar url: ')
+target = input('Avatar url: ')
 distance = float(input(
-    "Enter base distance between 2 images (leave blank to set default 0.3): ") or "0.3")
+    "Base distance used for 'final distance' looking up (leave blank to set default 0.3): ") or "0.3")
 increase = 0.01
-imgFolder = input("Enter images folder url(end with '/'): ")
-outputFileName = input("Enter output file name (include .ext): ")
+imgFolder = input("Image folder url (end with '/'): ")
+outputFileName = input("Output file name: ")
 
 
 def readFiles(folder):
@@ -27,7 +27,6 @@ def encodeFaces(image):
 
 
 def findImages(imageList, encodedTarget, distance, outputData):
-
     for image in imageList:
         tmpDist = findDistance(image, encodedTarget)
         if (tmpDist != -1 and tmpDist <= distance):
@@ -37,11 +36,13 @@ def findImages(imageList, encodedTarget, distance, outputData):
 
 def findFinalDistance(imageList, encodedTarget, baseDistance, increase):
     distance = baseDistance
-    while distance < 1:
+    while distance <= 0.6:
         for image in imageList:
             tmpDist = findDistance(image, encodedTarget)
             if (tmpDist == -1):
                 continue
+            if (tmpDist > 0.6):
+                imageList.remove(image)
             if tmpDist >= baseDistance and tmpDist <= distance:
                 return tmpDist
         distance = distance + increase

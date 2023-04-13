@@ -2,10 +2,12 @@ import json
 import cv2 as cv
 import face_recognition
 import os
+import sys
 
 target = input('Enter avatar url: ')
 distance = float(input(
-    "Enter distance between 2 images (leave blank to set default 0.6): ") or "0.6")
+    "Enter base distance between 2 images (leave blank to set default 0.3): ") or "0.3")
+increase = 0.01
 imgFolder = input("Enter images folder url(end with '/'): ")
 outputFileName = input("Enter output file name (include .ext): ")
 
@@ -24,20 +26,34 @@ def encodeFaces(image):
     return encodedFaces
 
 
-def detectionProcessing(imgFolder, encodedTarget, outputData, distance):
-    imageList = readFiles(imgFolder)
-    for image in imageList:
-        encodedFaces = encodeFaces(image)
-        if len(encodedFaces) == 0:
-            continue
-        comparedFaces = face_recognition.compare_faces(
-            encodedFaces, encodedTarget, distance)
+def findImages(imageList, encodedTarget, distance, outputData):
 
-        if True in comparedFaces:
-            faceDistances = face_recognition.face_distance(
-                encodedFaces, encodedTarget)
+    for image in imageList:
+        tmpDist = findDistance(image, encodedTarget)
+        if (tmpDist != -1 and tmpDist <= distance):
             outputData["data"].append(image)
-            outputData["distance"].append(min(faceDistances))
+            outputData["distance"].append(tmpDist)
+
+
+def findFinalDistance(imageList, encodedTarget, baseDistance, increase):
+    distance = baseDistance
+    while distance < 1:
+        for image in imageList:
+            tmpDist = findDistance(image, encodedTarget)
+            if (tmpDist == -1):
+                continue
+            if tmpDist >= baseDistance and tmpDist <= distance:
+                return tmpDist
+        distance = distance + increase
+    return -1
+
+
+def findDistance(image, encodedTarget):
+    encodedFaces = encodeFaces(image)
+    if len(encodedFaces) == 0:
+        return -1
+    return min(face_recognition.face_distance(
+        encodedFaces, encodedTarget))
 
 
 with open(outputFileName, "w") as outputFile:
@@ -46,7 +62,11 @@ with open(outputFileName, "w") as outputFile:
         "data": [],
         "distance": []
     }
-    detectionProcessing(imgFolder, encodedTarget, outputData, distance)
+    imageList = readFiles(imgFolder)
+    distance = findFinalDistance(imageList, encodedTarget, distance, increase)
+    if (distance == -1):
+        sys.exit("Re-adjust the distance for more correct result")
+    findImages(imageList, encodedTarget, distance, outputData)
     json_object = json.dumps(outputData, indent=4)
     outputFile.write(json_object)
     print(outputData)

@@ -41,13 +41,15 @@ def findImages(imageList, encodedTarget, distance, outputData):
 
 def findFinalDistance(imageList, encodedTarget, baseDistance, increase):
     distance = baseDistance
-    while distance <= 0.6:
+    while distance <= 0.5:
         bar = tqdm.tqdm(total=len(imageList), desc="Find correct distance from " + str(distance), position=1)
         for image in imageList:
             tmpDist = findDistance(image, encodedTarget)
             bar.update(1)
             if (tmpDist == -1):
                 continue
+            if(tmpDist > 0.5):
+                imageList.remove(image)
             if tmpDist >= baseDistance and tmpDist <= distance:
                 return tmpDist
         distance = distance + increase

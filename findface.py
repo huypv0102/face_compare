@@ -3,11 +3,13 @@ import cv2 as cv
 import face_recognition
 import os
 import sys
+import tqdm
 
 target = input('Avatar url: ')
 distance = float(input(
     "Base distance used for 'final distance' looking up (leave blank to set default 0.3): ") or "0.3")
-increase = 0.01
+increase =  float(input(
+    "Step size for each duration (leave blank to set default 0.01): ") or "0.01")
 imgFolder = input("Image folder url (end with '/'): ")
 outputFileName = input("Output file name: ")
 
@@ -27,7 +29,10 @@ def encodeFaces(image):
 
 
 def findImages(imageList, encodedTarget, distance, outputData):
+
+    bar = tqdm.tqdm(total=len(imageList), desc="Find images with distance " + str(distance), position=1)
     for image in imageList:
+        bar.update(1)
         tmpDist = findDistance(image, encodedTarget)
         if (tmpDist != -1 and tmpDist <= distance):
             outputData["data"].append(image)
@@ -37,12 +42,12 @@ def findImages(imageList, encodedTarget, distance, outputData):
 def findFinalDistance(imageList, encodedTarget, baseDistance, increase):
     distance = baseDistance
     while distance <= 0.6:
+        bar = tqdm.tqdm(total=len(imageList), desc="Find correct distance from " + str(distance), position=1)
         for image in imageList:
             tmpDist = findDistance(image, encodedTarget)
+            bar.update(1)
             if (tmpDist == -1):
                 continue
-            if (tmpDist > 0.6):
-                imageList.remove(image)
             if tmpDist >= baseDistance and tmpDist <= distance:
                 return tmpDist
         distance = distance + increase

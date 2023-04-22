@@ -37,7 +37,6 @@ def validateFace(imagePath):
         "fullBody": len(fullBody),
         "upperBody": len(upperBody),
     }
-    print(result)
     return result["faces"] == 1 and result["eyes"] == 2 and result["upperBody"] <= 1 and result["fullBody"] <= 1
 
 

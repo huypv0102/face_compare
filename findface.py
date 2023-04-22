@@ -22,7 +22,7 @@ def encodeFaces(image):
     return encodedFaces
 
 
-def findImages(imageList, encodedTarget, distance, outputData):
+def findImages(imageList, encodedTarget, distance, outputFile):
 
     bar = tqdm.tqdm(total=len(
         imageList), desc="Find images with distance " + str(distance), position=1)
@@ -30,8 +30,7 @@ def findImages(imageList, encodedTarget, distance, outputData):
         bar.update(1)
         tmpDist = findDistance(image, encodedTarget)
         if (tmpDist != -1 and tmpDist <= distance):
-            outputData["data"].append(image)
-            outputData["distance"].append(tmpDist)
+            outputFile.write("file '{image}'\n".format(image=image))
 
 
 def findFinalDistance(imageList, encodedTarget, baseDistance, increase):
@@ -62,23 +61,22 @@ def findDistance(image, encodedTarget):
 
 def findfaces(outputFileName, target, imgFolder, distance, increase):
     isValid = validateface.validateFace(target)
-    if(isValid != True):
+    if (isValid != True):
         return False
     with open(outputFileName, "w") as outputFile:
         encodedTarget = encodeFaces(target)[0]
         outputData = {
             "data": [],
-            "distance": []
         }
+        outputData["data"].append(target)
         imageList = readFiles(imgFolder)
         distance = findFinalDistance(
             imageList, encodedTarget, distance, increase)
         if (distance == -1):
             sys.exit("Re-adjust the distance for more correct result")
-        findImages(imageList, encodedTarget, distance, outputData)
-        json_object = json.dumps(outputData, indent=4)
-        outputFile.write(json_object)
-        print(outputData)
+        findImages(imageList, encodedTarget, distance, outputFile)
+        # json_object = json.dumps(outputData, indent=4)
+        # outputFile.write(json_object)
 
     cv.waitKey()
 
@@ -91,10 +89,11 @@ if __name__ == '__main__':
                         help="Base distance ", default=0.3, type=float)
     parser.add_argument("-i", "--Increase",
                         help="Step size ", default=0.01, type=float)
-    parser.add_argument("-f", "--Folder", help="Image folder(end with '/')", required=True)
+    parser.add_argument(
+        "-f", "--Folder", help="Image folder(end with '/')", required=True)
     parser.add_argument(
         "-o", "--Output", help="Output name", default="result.txt")
     args = parser.parse_args()
 
     findfaces(distance=args.Distance, outputFileName=args.Output,
-         target=args.Target, imgFolder=args.Folder, increase=args.Increase)
+              target=args.Target, imgFolder=args.Folder, increase=args.Increase)

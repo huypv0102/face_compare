@@ -6,12 +6,13 @@ eyeCascade = cv.CascadeClassifier("haareye.xml")
 fullBodyCascade = cv.CascadeClassifier("haarfullbody.xml")
 upperBodyCascade = cv.CascadeClassifier("haarupperbody.xml")
 
+
 def validateFace(imagePath):
     image = cv.imread(imagePath)
     if (image is None):
         return False
     gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-  
+
     faces = faceCascade.detectMultiScale(
         gray,
         scaleFactor=1.1,
@@ -19,15 +20,11 @@ def validateFace(imagePath):
     )
     fullBody = fullBodyCascade.detectMultiScale(
         gray,
-        scaleFactor=1.1,
-        minNeighbors=5,
     )
     upperBody = upperBodyCascade.detectMultiScale(
         gray,
-        scaleFactor=1.1,
-        minNeighbors=5,
     )
-    
+
     eyes = []
     for (x, y, w, h) in faces:
         cv.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
@@ -41,7 +38,7 @@ def validateFace(imagePath):
         "upperBody": len(upperBody),
     }
     print(result)
-    return result["faces"] == 1 and result["eyes"] == 2 and result["upperBody"] <=1 and result["fullBody"] <=1
+    return result["faces"] == 1 and result["eyes"] == 2 and result["upperBody"] <= 1 and result["fullBody"] <= 1
 
 
 if __name__ == '__main__':

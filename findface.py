@@ -22,7 +22,7 @@ def encodeFaces(image):
     return encodedFaces
 
 
-def findImages(imageList, encodedTarget, distance, outputFile):
+def findImages(imageList, encodedTarget, distance, outputData):
 
     bar = tqdm.tqdm(total=len(
         imageList), desc="Find images with distance " + str(distance), position=1)
@@ -30,8 +30,7 @@ def findImages(imageList, encodedTarget, distance, outputFile):
         bar.update(1)
         tmpDist = findDistance(image, encodedTarget)
         if (tmpDist != -1 and tmpDist <= distance):
-            outputFile.write("file '{image}'\n".format(image=image))
-
+            outputData["data"].append(image)
 
 def findFinalDistance(imageList, encodedTarget, baseDistance, increase):
     distance = baseDistance
@@ -74,9 +73,9 @@ def findfaces(outputFileName, target, imgFolder, distance, increase):
             imageList, encodedTarget, distance, increase)
         if (distance == -1):
             sys.exit("Re-adjust the distance for more correct result")
-        findImages(imageList, encodedTarget, distance, outputFile)
-        # json_object = json.dumps(outputData, indent=4)
-        # outputFile.write(json_object)
+        findImages(imageList, encodedTarget, distance, outputData)
+        json_object = json.dumps(outputData, indent=4)
+        outputFile.write(json_object)
 
     cv.waitKey()
 

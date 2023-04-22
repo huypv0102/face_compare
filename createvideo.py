@@ -1,55 +1,52 @@
 import ffmpeg
+import argparse
+import os
 import json
+import shutil
 
-def line_prepender(filename, line):
-    with open(filename, 'r+') as f:
-        content = f.read()
-        f.seek(0, 0)
-        f.write(line.rstrip('\r\n') + '\n' + content)
-
-def line_appender(filename, line):
-    with open(filename,"a") as f:
-        f.write(line)
-
-def thisWay():
-
-    imageFile = "result.txt"
-    welcome = "images/welcome.png"
-    thankyou = "images/thanku.png"
-    output = "video.mp4"
-    # line_prepender(imageFile,"file '{image}'".format(image=welcome))
-    # line_appender(imageFile,"file '{image}'\n".format(image=thankyou))
-    ffmpeg.input(imageFile, r='1', f='concat', safe='0').output(output, vcodec='h264').overwrite_output().run()
+def getImageListFrom(file):
+    with open(file, "r") as f:
+        data = json.load(f)
+        return data["data"]
 
 
 
-def anotherWay():
-    welcome = "images/welcome.png"
-    thankyou = "images/thanku.png"
-    jpeg_files = [welcome]
-    with open("result.txt", "r") as f:
-        imagePaths = f.readlines()
-    for path in imagePaths:
-        image = str.split(path)
-        jpeg_files.append(image[1])
-    jpeg_files.append(thankyou)
-    print(jpeg_files)
-    # Execute FFmpeg sub-process, with stdin pipe as input, and jpeg_pipe input format
-    process = ffmpeg.input('pipe:', r='20', f='jpeg_pipe').output('video.mp4', vcodec='libx264').overwrite_output().run_async(pipe_stdin=True)
+def createVideo(imageFile, welcomeImage, thankUImage, output):
+    imageList = getImageListFrom(imageFile)
+    if len(imageList) % 2 != 0:
+        imageList.append(imageList[len(imageList)-1])
+    # Insert welcome and thank-you page
+    imageList.append(thankUImage)
+    imageList.insert(0, welcomeImage)
 
-    # Iterate jpeg_files, read the content of each file and write it to stdin
-    for in_file in jpeg_files:
-        with open(in_file, 'rb') as f:
-            # Read the JPEG file content to jpeg_data (bytes array)
-            jpeg_data = f.read()
-
-            # Write JPEG data to stdin pipe of FFmpeg process
-            process.stdin.write(jpeg_data)
-
-    # Close stdin pipe - FFmpeg fininsh encoding the output file.
-    process.stdin.close()
-    process.wait()
+    outputList = []
+    tempDir = "/tmp/videoFolder" + output + "/"
+    os.mkdir(tempDir)
+    # Create .mp4 file for each image 
+    for i in range(len(imageList)):
+        outname = tempDir + imageList[i].split("/")[-1] + '.mp4'
+        os.system(
+            f'ffmpeg -loop 1 -i {imageList[i]} -c:v libx264 -t 2 -pix_fmt yuv420p -vf scale=320:240 {outname} -y')
+        outputList.append(outname)
+    
+    open('concat.txt', 'w').writelines(
+        [('file %s\n' % input_path) for input_path in outputList])
+    ffmpeg.input('concat.txt', format='concat', safe=0).output(
+        output + ".mp4", c='copy').overwrite_output().run()
+    os.remove("concat.txt")
+    shutil.rmtree(tempDir)
 
 
-# anotherWay()
-thisWay()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-p", "--Path", help="File contains images path", required=True)
+    parser.add_argument("-w", "--Welcome",
+                        help="First slide", required=True)
+    parser.add_argument("-t", "--Trailing",
+                        help="Last slide ", required=True)
+    parser.add_argument("-o", "--Output",
+                        help="Output file ", required=True)
+    args = parser.parse_args()
+    createVideo(imageFile=args.Path, welcomeImage=args.Welcome,
+                thankUImage=args.Trailing, output=args.Output)

@@ -1,3 +1,8 @@
-file 'images/h.jpg'
-file 'images/h5.jpg'
-file 'images/hs.jpg'
+{
+    "data": [
+        "images/hs.jpg",
+        "images/h.jpg",
+        "images/h5.jpg",
+        "images/hs.jpg"
+    ]
+}

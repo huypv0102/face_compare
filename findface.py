@@ -6,6 +6,7 @@ import sys
 import tqdm
 import argparse
 import validateface
+import createvideo
 
 
 def readFiles(folder):
@@ -31,6 +32,7 @@ def findImages(imageList, encodedTarget, distance, outputData):
         tmpDist = findDistance(image, encodedTarget)
         if (tmpDist != -1 and tmpDist <= distance):
             outputData["data"].append(image)
+
 
 def findFinalDistance(imageList, encodedTarget, baseDistance, increase):
     distance = baseDistance
@@ -76,8 +78,8 @@ def findfaces(outputFileName, target, imgFolder, distance, increase):
         findImages(imageList, encodedTarget, distance, outputData)
         json_object = json.dumps(outputData, indent=4)
         outputFile.write(json_object)
-
-    cv.waitKey()
+    createvideo.createVideo(outputFileName, welcomeImage="images/wc.png",
+                            thankUImage="images/thanku.png", audioFile="audio.mp3", output="demo")
 
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@ def getImageListFrom(file):
         return data["data"]
 
 
-def jpgToMp4(inputFilename, outputFilename, lineOneText, duration=7, clear=2, background='black'):
+def jpgToMp4(inputFilename, outputFilename,  duration=7, background='black'):
     SCALE_OPTIONS = {
         'force_original_aspect_ratio': 'decrease',
     }
@@ -33,80 +33,85 @@ def jpgToMp4(inputFilename, outputFilename, lineOneText, duration=7, clear=2, ba
         'duration': '1',
     }
 
-    LINE_ONE_TEXT_OPTIONS = {
-        'text': lineOneText,
-        'x': '((w-text_w)/2)',
-        'y': '(h-text_h-30)',
-        'fontfile': 'LiberationSans-Regular.ttf',
-        'fontsize': '40',
-        'fontcolor': 'white',
-        'borderw': '4',
-        'bordercolor': 'black',
-        'alpha': 'if(lt(t,0),0,if(lt(t,1),(t-0)/1,if(lt(t,%d),1,if(lt(t,%d),(1-(t-%d))/1,0))))' % (duration-clear-1, duration-clear, duration-clear-1),
-    }
+    # TEXT_OPTIONS = {
+    #     'text': text,
+    #     'x': '((w-text_w)/2)',
+    #     'y': '((h-text_h)/2)',
+    #     'fontfile': 'LiberationSans-Regular.ttf',
+    #     'fontsize': '80',
+    #     'fontcolor': 'white',
+    #     'borderw': '4',
+    #     'bordercolor': 'black',
+    # }
 
     stream = ffmpeg.input(inputFilename, t=str(duration), loop=1)
     stream = stream.filter('scale', 1920, 1080, **SCALE_OPTIONS)
     stream = stream.filter('pad', 1920, 1080, **PAD_OPTIONS)
     stream = stream.filter('fade', **FADE_IN_OPTIONS)
     stream = stream.filter('fade', **FADE_OUT_OPTIONS)
-    stream = stream.filter('drawtext', **LINE_ONE_TEXT_OPTIONS)
+    # stream = stream.filter('drawtext', **TEXT_OPTIONS)
     stream.output(outputFilename, pix_fmt='yuv420p').run(overwrite_output=True)
 
 
-def createSubVideo(imageList, dir, studentName):
+def createSubVideo(imageList, dir, duration):
     outputList = []
     for i in range(len(imageList)):
-        outname = dir + imageList[i].split("/")[-1] + '.mp4'
+        outputPath = dir + imageList[i].split("/")[-1] + '.mp4'
         jpgToMp4(
-            inputFilename=imageList[i], outputFilename=outname, lineOneText=studentName, duration=5)
-        outputList.append(outname)
+            inputFilename=imageList[i], outputFilename=outputPath, duration=duration)
+
+        outputList.append(outputPath)
 
     return outputList
 
 
 def mergeAudioAndVideo(audioFile, videoFile):
-    cmd = f'ffprobe -v quiet -select_streams v:0 -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1 {videoFile}.mp4'
-    video_duration = os.popen(cmd).read()
-    video_duration = float(str.strip(video_duration))
-
+    metadata = ffmpeg.probe(videoFile+".mp4")
+    video_duration = float(metadata['format']['duration'])
     ffmpeg.concat(ffmpeg.input(videoFile+".mp4"), ffmpeg.input(audioFile, t=video_duration),
                   v=1, a=1).output(videoFile + '.final.mp4').run(overwrite_output=True)
 
 
-def createVideo(imageFile, welcomeImage, thankUImage, audioFile, output, studentName):
+def createVideo(imageFile,  thankUImage, audioFile, output, studentName, duration):
     imageList = getImageListFrom(imageFile)
-    if len(imageList) % 2 != 0:
-        imageList.append(imageList[len(imageList)-1])
-    # Insert welcome and thank-you page
     imageList.append(thankUImage)
-    imageList.insert(0, welcomeImage)
 
     outputList = []
-    tempDir = "/tmp/videoFolder" + output + "/"
-    os.mkdir(tempDir)
+    tempDir = "tmpVideos/"
+    os.makedirs(tempDir)
+
     outputList = createSubVideo(
-        imageList=imageList, dir=tempDir, studentName=studentName)
+        imageList=imageList, dir=tempDir, duration=duration)
 
     open('concat.txt', 'w').writelines(
         [('file %s\n' % input_path) for input_path in outputList])
 
-    ffmpeg.input('concat.txt', format='concat', safe=0).output(
-        output + ".mp4", c='copy').overwrite_output().run()
-
-    os.remove("concat.txt")
-    shutil.rmtree(tempDir)
+    TEXT_OPTIONS = {
+        'text': studentName,
+        'x': '((w-text_w)/2)',
+        'y': '((h-text_h)/3)',
+        'fontfile': 'LiberationSans-Regular.ttf',
+        'fontsize': '80',
+        'fontcolor': 'white',
+        'borderw': '4',
+        'bordercolor': 'black',
+        'alpha': 'if(lt(t,0),0,if(lt(t,1),(t-0)/1,if(lt(t,%d),1,if(lt(t,%d),(1-(t-%d))/1,0))))' % (duration, duration, duration),
+    }
+    ffmpeg.input('concat.txt', format='concat', safe=0).filter('drawtext', **TEXT_OPTIONS).output(
+        output + ".mp4").overwrite_output().run()
 
     mergeAudioAndVideo(audioFile=audioFile, videoFile=output)
+
+    shutil.rmtree(tempDir)
+    os.remove("concat.txt")
     os.remove(output + ".mp4")
+    os.remove(imageFile)
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument(
         "-f", "--File", help="File contains images path", required=True)
-    parser.add_argument("-w", "--Welcome",
-                        help="First slide", required=True)
     parser.add_argument("-t", "--Trailing",
                         help="Last slide ", required=True)
     parser.add_argument("-a", "--Audio",
@@ -116,6 +121,9 @@ if __name__ == '__main__':
 
     parser.add_argument("-o", "--Output",
                         help="Output file (without .ext) ", required=True)
+    parser.add_argument("-d", "--Duration",
+                        help="Duration for each image ", default=4, type=int)
+
     args = parser.parse_args()
-    createVideo(imageFile=args.File, welcomeImage=args.Welcome,
-                thankUImage=args.Trailing, output=args.Output, audioFile=args.Audio, studentName=args.Name)
+    createVideo(imageFile=args.File, thankUImage=args.Trailing,
+                output=args.Output, audioFile=args.Audio, studentName=args.Name, duration=args.Duration)

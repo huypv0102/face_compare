@@ -78,8 +78,6 @@ def findfaces(outputFileName, target, imgFolder, distance, increase):
         findImages(imageList, encodedTarget, distance, outputData)
         json_object = json.dumps(outputData, indent=4)
         outputFile.write(json_object)
-    createvideo.createVideo(outputFileName, welcomeImage="images/wc.png",
-                            thankUImage="images/thanku.png", audioFile="audio.mp3", output="demo")
 
 
 if __name__ == '__main__':
@@ -93,7 +91,9 @@ if __name__ == '__main__':
     parser.add_argument(
         "-f", "--Folder", help="Image folder(end with '/')", required=True)
     parser.add_argument(
-        "-o", "--Output", help="Output name", default="result.txt")
+        "-o", "--Output", help="Output name", default="result")
+    parser.add_argument(
+        "-n", "--Name", help="Student name", default="")
     args = parser.parse_args()
 
     findfaces(distance=args.Distance, outputFileName=args.Output,

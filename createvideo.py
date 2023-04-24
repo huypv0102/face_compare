@@ -32,24 +32,12 @@ def jpgToMp4(inputFilename, outputFilename,  duration=7, background='black'):
         'start_time': '%s' % (duration-1),
         'duration': '1',
     }
-
-    # TEXT_OPTIONS = {
-    #     'text': text,
-    #     'x': '((w-text_w)/2)',
-    #     'y': '((h-text_h)/2)',
-    #     'fontfile': 'LiberationSans-Regular.ttf',
-    #     'fontsize': '80',
-    #     'fontcolor': 'white',
-    #     'borderw': '4',
-    #     'bordercolor': 'black',
-    # }
-
+    
     stream = ffmpeg.input(inputFilename, t=str(duration), loop=1)
     stream = stream.filter('scale', 1920, 1080, **SCALE_OPTIONS)
     stream = stream.filter('pad', 1920, 1080, **PAD_OPTIONS)
     stream = stream.filter('fade', **FADE_IN_OPTIONS)
     stream = stream.filter('fade', **FADE_OUT_OPTIONS)
-    # stream = stream.filter('drawtext', **TEXT_OPTIONS)
     stream.output(outputFilename, pix_fmt='yuv420p').run(overwrite_output=True)
 
 
@@ -78,7 +66,8 @@ def createVideo(imageFile,  thankUImage, audioFile, output, studentName, duratio
 
     outputList = []
     tempDir = "tmpVideos/"
-    os.makedirs(tempDir)
+    if not os.path.exists(tempDir):
+        os.makedirs(tempDir)
 
     outputList = createSubVideo(
         imageList=imageList, dir=tempDir, duration=duration)
@@ -109,7 +98,8 @@ def createVideo(imageFile,  thankUImage, audioFile, output, studentName, duratio
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument(
         "-f", "--File", help="File contains images path", required=True)
     parser.add_argument("-t", "--Trailing",
@@ -117,7 +107,7 @@ if __name__ == '__main__':
     parser.add_argument("-a", "--Audio",
                         help="Audio file", required=True)
     parser.add_argument("-n", "--Name",
-                        help="Student name", default="")
+                        help="Student name",required=True)
 
     parser.add_argument("-o", "--Output",
                         help="Output file (without .ext) ", required=True)

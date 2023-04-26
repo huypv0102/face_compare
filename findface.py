@@ -6,7 +6,6 @@ import sys
 import tqdm
 import argparse
 import validateface
-import createvideo
 
 
 def readFiles(folder):

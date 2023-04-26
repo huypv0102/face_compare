@@ -3,6 +3,7 @@ import argparse
 import os
 import json
 import shutil
+import tqdm
 
 
 def getImageListFrom(file):
@@ -32,18 +33,21 @@ def jpgToMp4(inputFilename, outputFilename,  duration=7, background='black'):
         'start_time': '%s' % (duration-1),
         'duration': '1',
     }
-    
+
     stream = ffmpeg.input(inputFilename, t=str(duration), loop=1)
     stream = stream.filter('scale', 1920, 1080, **SCALE_OPTIONS)
     stream = stream.filter('pad', 1920, 1080, **PAD_OPTIONS)
     stream = stream.filter('fade', **FADE_IN_OPTIONS)
     stream = stream.filter('fade', **FADE_OUT_OPTIONS)
-    stream.output(outputFilename, pix_fmt='yuv420p').run(overwrite_output=True)
+    stream.output(outputFilename, pix_fmt='yuv420p').run(overwrite_output=True, quiet = True)
 
 
 def createSubVideo(imageList, dir, duration):
     outputList = []
+    bar = tqdm.tqdm(total=len(
+        imageList), desc="Creating sub videos" , position=1)
     for i in range(len(imageList)):
+        bar.update(1)
         outputPath = dir + imageList[i].split("/")[-1] + '.mp4'
         jpgToMp4(
             inputFilename=imageList[i], outputFilename=outputPath, duration=duration)
@@ -54,10 +58,12 @@ def createSubVideo(imageList, dir, duration):
 
 
 def mergeAudioAndVideo(audioFile, videoFile):
+    bar = tqdm.tqdm(total=1, desc="Merging audio and video" , position=1)
     metadata = ffmpeg.probe(videoFile+".mp4")
     video_duration = float(metadata['format']['duration'])
     ffmpeg.concat(ffmpeg.input(videoFile+".mp4"), ffmpeg.input(audioFile, t=video_duration),
-                  v=1, a=1).output(videoFile + '.final.mp4').run(overwrite_output=True)
+                  v=1, a=1).output(videoFile + '.final.mp4').run(overwrite_output=True, quiet = True)
+    bar.update(1)
 
 
 def createVideo(imageFile,  thankUImage, audioFile, output, studentName, duration):
@@ -87,14 +93,14 @@ def createVideo(imageFile,  thankUImage, audioFile, output, studentName, duratio
         'alpha': 'if(lt(t,0),0,if(lt(t,1),(t-0)/1,if(lt(t,%d),1,if(lt(t,%d),(1-(t-%d))/1,0))))' % (duration, duration, duration),
     }
     ffmpeg.input('concat.txt', format='concat', safe=0).filter('drawtext', **TEXT_OPTIONS).output(
-        output + ".mp4").overwrite_output().run()
+        output + ".mp4").overwrite_output().run(quiet = True)
 
     mergeAudioAndVideo(audioFile=audioFile, videoFile=output)
 
-    shutil.rmtree(tempDir)
-    os.remove("concat.txt")
+
     os.remove(output + ".mp4")
-    os.remove(imageFile)
+    os.remove("concat.txt")
+    shutil.rmtree(tempDir)
 
 
 if __name__ == '__main__':

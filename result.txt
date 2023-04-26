@@ -1,8 +1,8 @@
 {
     "data": [
-        "images/hs.jpg",
-        "images/h.jpg",
-        "images/h5.jpg",
-        "images/hs.jpg"
+        "images/kid12.png",
+        "images/kid15.png",
+        "images/kid9.png",
+        "images/kid12.png"
     ]
 }

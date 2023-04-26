@@ -92,8 +92,6 @@ if __name__ == '__main__':
         "-f", "--Folder", help="Image folder(end with '/')", required=True)
     parser.add_argument(
         "-o", "--Output", help="Output name", default="result.txt")
-    parser.add_argument(
-        "-n", "--Name", help="Student name", default="")
     args = parser.parse_args()
 
     findfaces(distance=args.Distance, outputFileName=args.Output,

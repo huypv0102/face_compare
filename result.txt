@@ -2,7 +2,10 @@
     "data": [
         "images/hs.jpg",
         "images/h.jpg",
+        "images/h4.jpg",
         "images/h5.jpg",
-        "images/hs.jpg"
+        "images/hs.jpg",
+        "images/kid48.png",
+        "images/kid77.png"
     ]
 }

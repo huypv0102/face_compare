@@ -3,9 +3,9 @@ python findfacev2.py -h
   
   optional arguments:
     -h, --help            show this help message and exit
-    -t TARGET, --Target TARGET
+    -t TARGET, --Target TARGET <br>
                           Target path
-    -f FOLDER, --Folder FOLDER
+    -f FOLDER, --Folder FOLDER <br>
                           Image folder(end with '/')
 
                           

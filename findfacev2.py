@@ -1,5 +1,6 @@
 import os,shutil
 import face_recognition
+import argparse
 import extractface
 import json
 import validateface
@@ -40,7 +41,7 @@ def findFace(target,imageFolder):
                 
                 if len(faceEncoding) != 0:
                     distance = face_recognition.face_distance([encodedFace],faceEncoding[0])
-                    if distance[0]<= 0.35:
+                    if distance[0]<= 0.33:
                         print( imageFolder + image + " " + str(distance))
                         outputData["data"].append(imageFolder + image)
             
@@ -52,4 +53,12 @@ def findFace(target,imageFolder):
             outputFile.write(json_object)
 
 # findFace("D:/face_reg/UTKface_inthewild-20231121T025338Z-001/UTKface_inthewild/part1/part1/8_1_2_20170109203442372.jpg","D:/face_reg/UTKface_inthewild-20231121T025338Z-001/UTKface_inthewild/part1/part1/")
-findFace("images/hs.jpg", "images/")
+# findFace("images/hs.jpg", "images/")
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--Target", help="Target path", required=True)
+    parser.add_argument("-f", "--Folder", help="Image folder(end with '/')", required=True)
+    args = parser.parse_args()
+
+    findFace(args.Target, args.Folder)

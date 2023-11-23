@@ -1,3 +1,3 @@
-pip install -r requirement.txt <br>
-python3 findface.py -h <br>
-python3 createvideo.py -h
+python findfacev2.py -h
+
+e.g: python findfacev2.py -t images/hs.jpg -f images/

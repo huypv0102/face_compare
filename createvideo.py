@@ -60,6 +60,7 @@ def createSubVideo(imageList, dir, duration):
 def mergeAudioAndVideo(audioFile, videoFile):
     bar = tqdm.tqdm(total=1, desc="Merging audio and video" , position=1)
     metadata = ffmpeg.probe(videoFile+".mp4")
+    print(metadata)
     video_duration = float(metadata['format']['duration'])
     ffmpeg.concat(ffmpeg.input(videoFile+".mp4"), ffmpeg.input(audioFile, t=video_duration),
                   v=1, a=1).output(videoFile + '.final.mp4').run(overwrite_output=True, quiet = True)

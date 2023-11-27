@@ -44,5 +44,3 @@ def hogDetectFaces(imagePath,extractedFolder,  display = False):
 
         return output_image, results
 
-# image = cv2.imread('images\\\edulink\\67414\\GRQAF638314145824554976.jpeg')
-# hogDetectFaces(image,  display=True)

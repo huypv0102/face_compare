@@ -62,7 +62,7 @@ def findFace(targetPath,imageFolder):
             faceEncoding = face_recognition.face_encodings(face)
             
             if len(faceEncoding) !=0:
-                results = face_recognition.compare_faces(encodedTarget, faceEncoding[0],0.3)
+                results = face_recognition.compare_faces(encodedTarget, faceEncoding[0],0.28)
                 if False not in results:
                     print( image )
 

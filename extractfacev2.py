@@ -19,7 +19,7 @@ def hogDetectFaces(imagePath,extractedFolder,  display = False):
 
     results = hog_face_detector(imgRGB, 0)
     end = time()
-    padding = 0
+    padding = 200
 
     for bbox in results:
 
@@ -30,7 +30,11 @@ def hogDetectFaces(imagePath,extractedFolder,  display = False):
 
         # cv2.rectangle(output_image, pt1=(x1, y1), pt2=(x2, y2), color=(0, 255, 0), thickness=width//200)  
         roi_color = image[y1:y2, x1:x2]
-        cv2.imwrite(extractedFolder + "/"+ str(x2) + str(y2)+".jpg", roi_color)
+        try:
+             cv2.imwrite(extractedFolder + "/"+ str(x2) + str(y2)+".jpg", roi_color)
+        except:
+            print("An exception has occurred!")
+           
     if display:
 
         cv2.putText(output_image, text='Time taken: '+str(round(end - start, 2))+' Seconds.', org=(10, 65),

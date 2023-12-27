@@ -10,7 +10,7 @@ OUTPUTFILE = "model.txt"
 
 def train(images, dbUri, dbName, dbCollection) ->None:
     db=dbhelper.connect(dbUri,dbName)
-    model = "hog"
+    model = "cnn"
     #images = findfacev2.listAllImage(trainFolders)
     for filepath in images:
         name = filepath.split("\\")[-1].split(".")[0].split("_")[0] #123_name.jpg

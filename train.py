@@ -8,13 +8,13 @@ import json
 
 OUTPUTFILE = "model.txt"
 
-def train(trainFolders, dbUri, dbName, dbCollection) ->None:
+def train(images, dbUri, dbName, dbCollection) ->None:
     db=dbhelper.connect(dbUri,dbName)
     model = "hog"
-  
-    images = findfacev2.listAllImage(trainFolders)
+    #images = findfacev2.listAllImage(trainFolders)
     for filepath in images:
-        name = filepath.split("\\")[-1].split(".")[0]
+        name = filepath.split("\\")[-1].split(".")[0].split("_")[0] #123_name.jpg
+        print(filepath)
         image = face_recognition.load_image_file(filepath)
         face_locations = face_recognition.face_locations(image, model=model)
         face_encodings = face_recognition.face_encodings(image, face_locations)
@@ -43,11 +43,11 @@ def train(trainFolders, dbUri, dbName, dbCollection) ->None:
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--Folder", help="Train folder(end with '/')", required=True)
-    parser.add_argument("-s", "--DBString", help="DB connection string", required=True)
-    parser.add_argument("-n", "--DBName", help="DB name", default="face_rec")
-    parser.add_argument("-c", "--DBCol", help="DB collection", default="model")
+    parser.add_argument("-f", "--Files", nargs='+', help="Image files",  default='C:\\Users\\HUY-PC\\Desktop\\TestFaceRecognite\\117-SteamArt\\17302_LE_HA_NGOC_AI.jpg')
+    parser.add_argument("-s", "--DBString", help="DB connection string", default="mongodb://awedev:awedev123@103.147.186.116:27017/?authMechanism=DEFAULT&authSource=CYC_Dev")
+    parser.add_argument("-n", "--DBName", help="DB name", default="CYC_Dev")
+    parser.add_argument("-c", "--DBCol", help="DB collection", default="FaceModels_huy")
     args = parser.parse_args()
         
-    train(args.Folder,args.DBString,args.DBName,args.DBCol)
+    train(args.Files,args.DBString,args.DBName,args.DBCol)
     

@@ -19,13 +19,14 @@ def hogDetectFaces(imagePath,extractedFolder,  display = False):
 
     results = hog_face_detector(imgRGB, 0)
     end = time()
+    padding = 0
 
     for bbox in results:
 
-        x1 = bbox.left()
-        y1 = bbox.top()
-        x2 = bbox.right()
-        y2 = bbox.bottom()
+        x1 = bbox.left()-padding
+        y1 = bbox.top()- 2*padding
+        x2 = bbox.right() +padding
+        y2 = bbox.bottom()+padding
 
         # cv2.rectangle(output_image, pt1=(x1, y1), pt2=(x2, y2), color=(0, 255, 0), thickness=width//200)  
         roi_color = image[y1:y2, x1:x2]

@@ -1,3 +1,4 @@
+from collections import Counter
 import os,shutil
 import face_recognition
 import argparse
@@ -64,14 +65,15 @@ def classifyImage(imageFolders, dbString, dbName,dbModelCollection,dbResultColle
                 faceEncodings = face_recognition.face_encodings(image, faceLocations)
 
                 if len(faceEncodings)!=0:
-                    results = face_recognition.compare_faces(knownEncoded , faceEncodings[0],0.28)
-                    for studentId,isMatch in zip(name, results):
-                        if isMatch:
-                            studentData = findByStudentId(classifyOutput,studentId)
-                            if not studentData:
-                                classifyOutput.append({"studentId":studentId,"images" :[str(filePath)]})
-                            else:
-                                studentData["images"] = list(set(studentData["images"] + [str(filePath)]))
+                    results = face_recognition.compare_faces(knownEncoded , faceEncodings[0], 0.28)
+
+                for studentId,isMatch in zip(name, results):
+                    if isMatch:
+                        studentData = findByStudentId(classifyOutput,studentId)
+                        if not studentData:
+                            classifyOutput.append({"studentId":studentId,"images" :[str(filePath)]})
+                        else:
+                            studentData["images"] = list(set(studentData["images"] + [str(filePath)]))
                 os.remove(facePath)
         print(classifyOutput)
         db[dbResultCollection].insert_one({"postId":postId,"studentPhotos":classifyOutput})
@@ -81,10 +83,10 @@ def classifyImage(imageFolders, dbString, dbName,dbModelCollection,dbResultColle
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--Folder", nargs='+', help="Image folders(end with '/')", required=True)
-    parser.add_argument("-s", "--DBString", help="DB connection string", required=True)
-    parser.add_argument("-n", "--DBName", help="DB name", default="face_rec")
-    parser.add_argument("-mc", "--DBModelCol", help="DB model collection", default="model")
+    parser.add_argument("-f", "--Folder", nargs='+', help="Image folders(end with '/')", default=['C:\\Users\HUY-PC\\Desktop\\TestFaceRecognite\\Posts\\85860\\'])
+    parser.add_argument("-s", "--DBString", help="DB connection string", default="mongodb://awedev:awedev123@103.147.186.116:27017/?authMechanism=DEFAULT&authSource=CYC_Dev")
+    parser.add_argument("-n", "--DBName", help="DB name", default="CYC_Dev")
+    parser.add_argument("-mc", "--DBModelCol", help="DB model collection", default="FaceModels_huy")
     parser.add_argument("-rc", "--DBResultCol", help="DB result collection", default="StudentImages")
     args = parser.parse_args()
     classifyImage(args.Folder, args.DBString, args.DBName, args.DBModelCol, args.DBResultCol)

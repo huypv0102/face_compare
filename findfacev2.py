@@ -41,14 +41,16 @@ def findByStudentId(array,id):
 
 
 
-def classifyImage(imageFolders, dbString, dbName,dbModelCollection,dbResultCollection):
+def classifyImage(classId, imageFolders, dbString, dbName,dbModelCollection,dbResultCollection):
     db=dbhelper.connect(dbString,dbName)
-    trainedModel = db[dbModelCollection].find()
+    trainedModel = db[dbModelCollection].find({"classId": int(classId)})
 
     name = []
     knownEncoded = []
     for i in trainedModel:
-        name.append(i["name"])
+        print(i["studentId"])
+        name.append(int(i["studentId"]))
+        # name.append(i["name"])
         knownEncoded.append(numpy.array(i["data"]))
 
     for folder in imageFolders:
@@ -65,29 +67,37 @@ def classifyImage(imageFolders, dbString, dbName,dbModelCollection,dbResultColle
                 faceEncodings = face_recognition.face_encodings(image, faceLocations)
 
                 if len(faceEncodings)!=0:
-                    results = face_recognition.compare_faces(knownEncoded , faceEncodings[0], 0.28)
+                    results = face_recognition.compare_faces(knownEncoded , faceEncodings[0], 0.32)
 
                 for studentId,isMatch in zip(name, results):
                     if isMatch:
                         studentData = findByStudentId(classifyOutput,studentId)
                         if not studentData:
-                            classifyOutput.append({"studentId":studentId,"images" :[str(filePath)]})
+                            classifyOutput.append({"studentId":int(studentId),"images" :[str(filePath)]})
                         else:
                             studentData["images"] = list(set(studentData["images"] + [str(filePath)]))
+                        # print(studentData["images"])
+                        if studentData:
+                            studentPhotos = list(set(studentData["images"]))
+                            # if studentPhotos.count() > 0:
+                            # print(studentPhotos)
+                            db[dbResultCollection].insert_one({"postId": int(postId), "studentId":int(studentId), "studentPhotos": studentPhotos})
+
                 os.remove(facePath)
         print(classifyOutput)
-        db[dbResultCollection].insert_one({"postId":postId,"studentPhotos":classifyOutput})
+        # db[dbResultCollection].insert_one({"postId":postId,"studentPhotos":classifyOutput})
 
     
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("-g", "--Group", help="Student Group (classId)", default="123")
     parser.add_argument("-f", "--Folder", nargs='+', help="Image folders(end with '/')", default=['C:\\Users\HUY-PC\\Desktop\\TestFaceRecognite\\Posts\\85860\\'])
     parser.add_argument("-s", "--DBString", help="DB connection string", default="mongodb://awedev:awedev123@103.147.186.116:27017/?authMechanism=DEFAULT&authSource=CYC_Dev")
     parser.add_argument("-n", "--DBName", help="DB name", default="CYC_Dev")
     parser.add_argument("-mc", "--DBModelCol", help="DB model collection", default="FaceModels_huy")
     parser.add_argument("-rc", "--DBResultCol", help="DB result collection", default="StudentImages")
     args = parser.parse_args()
-    classifyImage(args.Folder, args.DBString, args.DBName, args.DBModelCol, args.DBResultCol)
+    classifyImage(args.Group, args.Folder, args.DBString, args.DBName, args.DBModelCol, args.DBResultCol)
    
